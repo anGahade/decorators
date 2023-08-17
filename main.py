@@ -1,19 +1,22 @@
 """
-Створіть простий декоратор логування log_func,
-який буде прінтити будь яке повідомлення перед визовом декорованої функції, та після.
+Реалізувати декоратор timeit, який вимірює час виконання декорованої функції і виводить його.
+Для отримання часу роботи скористуйтесь модулем time і функцією time.time()
 """
+import time
 
 
-def log_func(func):
-    def wrapper(*args, **kwargs):
-        print("I`m going to greet you!")
+def timeit(func):
+    def timer(*args, **kwargs):
+        start = time.time()
         result = func(*args, **kwargs)
-        print("Told you!")
+        end = time.time()
+        print(f"Час виконання програми: {end-start}")
         return result
-    return wrapper()
+    return timer()
 
 
-@log_func
+@timeit
 def hello(name="Anton"):
+    time.sleep(1)
     print(f"Hello,{name} !")
 
