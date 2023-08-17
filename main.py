@@ -1,22 +1,29 @@
 """
-Реалізувати декоратор timeit, який вимірює час виконання декорованої функції і виводить його.
-Для отримання часу роботи скористуйтесь модулем time і функцією time.time()
+Створіть декоратор retry який приймає першим аргументом число - кількість разів,
+яку потрібно буде повторити виконання функції у разі викидання нею помилки.
 """
 import time
 
 
-def timeit(func):
-    def timer(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        end = time.time()
-        print(f"Час виконання програми: {end-start}")
-        return result
-    return timer()
+def retry(n):
+    def decorator(func):
+        def once_more(*args, **kwargs):
+            retries = 0
+            while n != retries:
+                try:
+                    result = func(*args, **kwargs)
+                    return result
+                except Exception as e:
+                    print(f"Error: {e}. Retrying......")
+                    time.sleep(1)
+                    retries += 1
+        return once_more
+    return decorator
 
 
-@timeit
-def hello(name="Anton"):
-    time.sleep(1)
-    print(f"Hello,{name} !")
+@retry(2)
+def error_func():
+    print(1/0)
 
+
+error_func()
