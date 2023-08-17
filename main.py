@@ -1,16 +1,19 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+"""
+Створіть простий декоратор логування log_func,
+який буде прінтити будь яке повідомлення перед визовом декорованої функції, та після.
+"""
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def log_func(func):
+    def wrapper(*args, **kwargs):
+        print("I`m going to greet you!")
+        result = func(*args, **kwargs)
+        print("Told you!")
+        return result
+    return wrapper()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+@log_func
+def hello(name="Anton"):
+    print(f"Hello,{name} !")
+
