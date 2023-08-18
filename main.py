@@ -1,29 +1,34 @@
 """
-Створіть декоратор retry який приймає першим аргументом число - кількість разів,
-яку потрібно буде повторити виконання функції у разі викидання нею помилки.
+Реалізувати декоратор кешування memorize, який кешує результати декорованої функції
+для покращення продуктивності при повторних викликах з тими самими аргументами.
+Тобто він повинен запамʼятовувати аргументи з якими функція визивалась і результат роботи функції з цими аргументами.
+І у випадку, якщо ми вже маємо результат для цих аргументів,
+просто повернути закешований результат, замість виклику функції.
 """
-import time
 
 
-def retry(n):
-    def decorator(func):
-        def once_more(*args, **kwargs):
-            retries = 0
-            while n != retries:
-                try:
-                    result = func(*args, **kwargs)
-                    return result
-                except Exception as e:
-                    print(f"Error: {e}. Retrying......")
-                    time.sleep(1)
-                    retries += 1
-        return once_more
-    return decorator
+def memorize(func):
+    cache = {}
+
+    def wrapper(*args):
+        if args in cache:
+            print("Returning cached result:")
+            return cache[args]
+        else:
+            result = func(*args)
+            cache[args] = result
+            print("Calculating...")
+            return result
+
+    return wrapper
 
 
-@retry(2)
-def error_func():
-    print(1/0)
+@memorize
+def sum_of_numbers(a, b):
+    return a + b
 
 
-error_func()
+print(sum_of_numbers(5, 7))
+print(sum_of_numbers(5, 7))
+
+
