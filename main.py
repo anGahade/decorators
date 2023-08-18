@@ -1,34 +1,45 @@
 """
-Реалізувати декоратор кешування memorize, який кешує результати декорованої функції
-для покращення продуктивності при повторних викликах з тими самими аргументами.
-Тобто він повинен запамʼятовувати аргументи з якими функція визивалась і результат роботи функції з цими аргументами.
-І у випадку, якщо ми вже маємо результат для цих аргументів,
-просто повернути закешований результат, замість виклику функції.
+Створіть декоратор **`rate_limit`**, який обмежує кількість викликів
+декорованої функції протягом певного періоду часу.
+Декоратор повинен приймати два параметри `max_calls` та `period`.
+Перший парметр - максимальна кількість допустимих викликів функції.
+Другий параметр - кількість секунд у рамках яких ми можемо зробити `max_calls` викликів.
 """
+import time
 
 
-def memorize(func):
-    cache = {}
+def rate_limit(max_calls=1, period=10):
+    last_called = None
+    calls = 0
 
-    def wrapper(*args):
-        if args in cache:
-            print("Returning cached result:")
-            return cache[args]
-        else:
-            result = func(*args)
-            cache[args] = result
-            print("Calculating...")
-            return result
+    def wrapper(func):
+        def inner_wrapper(*args, **kwargs):
+            nonlocal last_called, calls
+
+            current_time = time.time()
+
+            if last_called is None or current_time - last_called >= period:
+                calls = 0
+                last_called = current_time
+
+            if calls < max_calls:
+                result = func(*args, **kwargs)
+                calls += 1
+                return result
+            else:
+                return "Rate limit exceeded. Please wait."
+
+        return inner_wrapper
 
     return wrapper
 
 
-@memorize
-def sum_of_numbers(a, b):
-    return a + b
+@rate_limit(max_calls=2, period=10)
+def limited_function():
+    return "Function executed."
 
 
-print(sum_of_numbers(5, 7))
-print(sum_of_numbers(5, 7))
-
+for _ in range(5):
+    print(limited_function())
+    time.sleep(0.5)
 
